@@ -46,16 +46,24 @@ UpdateSingleRowString <- function(rr, changed, indices, table, whereString) {
 #### UI ####
 ui <- shinyUI(fluidPage(
   h1('Editing a Database from Shiny'), 
+  p('Change a value or insert a row in the table on the right 
+    to generate a SQL query that would write your changes to a database.'),
   hr(),
   
   fluidRow(
     column(width = 6,
-      h3('Original Data (from database)'),
+      h3('Original Data'),
+      p('Represents unmodified data from a database. Read-only.'),
       rHandsontableOutput('Original')
     ),
     column(width = 6,
-      h3('Editable Data (will be written to database)'),
-      rHandsontableOutput('Changed')
+      h3('Editable Data'),
+      p('Changes to be made in the database. 
+        Edit this table like any spreadsheet. 
+        Right click to insert a new row. 
+        Deleting rows is not supported at this time.'),
+      rHandsontableOutput('Changed'),
+      actionButton('resetButton', 'Reset to Original')
     )
   ),
   
@@ -95,6 +103,8 @@ server <- shinyServer(function(input, output, session) {
   # create handsOnTable with unedited data from database.
   # this is the table that can be edited in Shiny
   output$Changed <- renderRHandsontable({
+    thing <- input$resetButton
+    
     rhandsontable(FromDatabase()) %>%
       hot_col("factor_allow", allowInvalid = TRUE) %>% 
       hot_col("primary_key", readOnly = TRUE)  # primary key column is read only for matching purposes
